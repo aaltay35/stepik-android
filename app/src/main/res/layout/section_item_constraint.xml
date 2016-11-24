@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:id="@+id/cv"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:background="@color/stepic_white"
+             android:clickable="true"
+             android:focusable="false"
+             android:focusableInTouchMode="false"
+             android:foreground="@drawable/non_radius_foreground">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/start_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/stepic_weak_text"
+            android:textSize="@dimen/text_height"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="@+id/section_title"
+            app:layout_constraintRight_toRightOf="@+id/section_title"
+            app:layout_constraintTop_toBottomOf="@+id/section_title"
+            tools:text="start date"/>
+
+        <TextView
+            android:id="@+id/section_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="@dimen/text_header"
+            app:layout_constraintHorizontal_bias="0.0"
+
+            app:layout_constraintRight_toLeftOf="@+id/load_button"
+            app:layout_constraintTop_toTopOf="parent"
+
+            tools:text="1. sasa "
+            android:layout_marginStart="@dimen/guideline_left_right_padding_list_item"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginLeft="@dimen/guideline_left_right_padding_list_item"/>
+
+        <TextView
+            android:id="@+id/soft_deadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/stepic_weak_text"
+            android:textSize="@dimen/text_height"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="@+id/section_title"
+            app:layout_constraintRight_toRightOf="@+id/section_title"
+            app:layout_constraintTop_toBottomOf="@+id/start_date"
+            tools:text="soft deadline date"/>
+
+        <TextView
+            android:id="@+id/hard_deadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/stepic_weak_text"
+            android:textSize="@dimen/text_height"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="@+id/section_title"
+            app:layout_constraintRight_toRightOf="@+id/section_title"
+            app:layout_constraintTop_toBottomOf="@+id/soft_deadline"
+            tools:text="hard deadline date"/>
+
+
+        <View
+            android:id="@+id/grey_bar"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/guideline_left_right_padding_list_item"
+            android:background="@color/silver"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/start_exam_button"/>
+
+        <TextView
+            android:id="@+id/exam_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/exam_module_title"
+            android:textSize="@dimen/stepik_text_size_in_button"
+            app:layout_constraintBaseline_toBaselineOf="@+id/start_exam_button"
+            app:layout_constraintLeft_toLeftOf="@+id/section_title"/>
+
+        <Button
+            android:id="@+id/start_exam_button"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/guideline_left_right_padding_list_item"
+            android:text="@string/start_exam_action_title"
+            android:textColor="@color/stepic_blue_ribbon"
+            android:textSize="@dimen/stepik_text_size_in_button"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintLeft_toRightOf="@+id/exam_title"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hard_deadline"/>
+
+        <FrameLayout
+            android:id="@+id/load_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="@drawable/circle_foreground"
+            app:layout_constraintBottom_toTopOf="@+id/start_exam_button"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0">
+
+            <ImageView
+                android:id="@+id/pre_load_iv"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_cloud_download_grey600_24dp"/>
+
+
+            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                android:id="@+id/when_load_view"
+                style="@style/Widget.MaterialProgressBar.ProgressBar.Small.NoPadding"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:indeterminate="true"/>
+
+
+            <ImageView
+                android:id="@+id/after_load_iv"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_delete"
+                android:visibility="gone"/>
+
+        </FrameLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
+</FrameLayout>

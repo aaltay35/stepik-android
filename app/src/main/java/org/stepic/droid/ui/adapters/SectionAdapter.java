@@ -106,7 +106,7 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.GenericV
     @Override
     public GenericViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_SECTION_ITEM) {
-            View v = LayoutInflater.from(context).inflate(R.layout.section_item, parent, false);
+            View v = LayoutInflater.from(context).inflate(R.layout.section_item_constraint, parent, false);
             return new SectionViewHolder(v);
         } else if (viewType == TYPE_TITLE) {
             View v = LayoutInflater.from(context).inflate(R.layout.export_calendar_view, parent, false);
@@ -286,8 +286,8 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.GenericV
         @BindView(R.id.load_button)
         View loadButton;
 
-        @BindView(R.id.exam_view)
-        ViewGroup examRoot;
+        @BindView(R.id.exam_title)
+        View examTitle;
 
         @BindView(R.id.start_exam_button)
         View startExamButton;
@@ -418,9 +418,9 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.GenericV
             }
 
             if (section.isExam()) {
-                examRoot.setVisibility(View.VISIBLE);
+                showExam(true);
             } else {
-                examRoot.setVisibility(View.GONE);
+                showExam(false);
             }
 
             if (defaultHighlightPosition >= 0 && defaultHighlightPosition == position) {
@@ -428,6 +428,16 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.GenericV
                 setAnimation(cv);
             } else {
                 cv.setBackgroundColor(defaultColor);
+            }
+        }
+
+        private void showExam(boolean needShow) {
+            if (needShow) {
+                examTitle.setVisibility(View.VISIBLE);
+                startExamButton.setVisibility(View.VISIBLE);
+            } else {
+                examTitle.setVisibility(View.GONE);
+                startExamButton.setVisibility(View.GONE);
             }
         }
 
