@@ -2,17 +2,20 @@ package org.stepic.droid.ui.fragments;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -21,12 +24,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,17 +55,11 @@ import org.stepic.droid.events.courses.CourseCantLoadEvent;
 import org.stepic.droid.events.courses.CourseFoundEvent;
 import org.stepic.droid.events.courses.CourseUnavailableForUserEvent;
 import org.stepic.droid.events.courses.SuccessDropCourseEvent;
-import org.stepic.droid.events.instructors.FailureLoadInstructorsEvent;
-import org.stepic.droid.events.instructors.OnResponseLoadingInstructorsEvent;
 import org.stepic.droid.events.instructors.StartLoadingInstructorsEvent;
 import org.stepic.droid.events.joining_course.FailJoinEvent;
 import org.stepic.droid.events.joining_course.SuccessJoinEvent;
 import org.stepic.droid.model.Course;
-import org.stepic.droid.model.CourseProperty;
-import org.stepic.droid.model.User;
 import org.stepic.droid.model.Video;
-import org.stepic.droid.ui.adapters.CoursePropertyAdapter;
-import org.stepic.droid.ui.adapters.InstructorAdapter;
 import org.stepic.droid.ui.dialogs.LoadingProgressDialog;
 import org.stepic.droid.ui.dialogs.UnauthorizedDialogFragment;
 import org.stepic.droid.util.AppConstants;
@@ -72,28 +67,22 @@ import org.stepic.droid.util.ProgressHelper;
 import org.stepic.droid.util.StepikLogicHelper;
 import org.stepic.droid.util.StringUtil;
 import org.stepic.droid.util.ThumbnailParser;
-import org.stepic.droid.web.UserStepicResponse;
 
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindDrawable;
 import butterknife.BindString;
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import timber.log.Timber;
 
 public class CourseDetailFragment extends FragmentBase implements LoadCourseView, CourseJoinView, CourseDetailAnalyticView {
 
     private static String instaEnrollKey = "instaEnrollKey";
     private View.OnClickListener onClickReportListener;
-    private View header;
-    private View footer;
+    //    private View header;
+//    private View footer;
     private DialogFragment unauthorizedDialog;
     private Intent shareIntentWithChooser;
     private GlideDrawableImageViewTarget courseTargetFigSupported;
@@ -119,7 +108,7 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
 
     @BindView(R.id.root_view)
-    View rootView;
+    CoordinatorLayout rootView;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -127,16 +116,26 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
     @BindView(R.id.course_not_found)
     View courseNotFoundView;
 
+    @BindView(R.id.course_detailed_tabs)
+    TabLayout tabLayout;
+
+    @BindView(R.id.course_detailed_viewpager)
+    ViewPager viewPager;
+
     @BindDrawable(R.drawable.general_placeholder)
     Drawable coursePlaceholder;
 
-    private WebView introView;
+    @BindView(R.id.intro_video)
+    WebView introView;
 
-    private TextView courseNameView;
+    @BindView(R.id.course_name)
+    TextView courseNameView;
 
-    private RecyclerView instructorsCarousel;
+//    private RecyclerView instructorsCarousel;
 
+    @BindView(R.id.join_course_layout)
     View joinCourseView;
+    @BindView(R.id.go_to_learn)
     View continueCourseView;
 
     ProgressDialog joinCourseSpinner;
@@ -149,9 +148,9 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     @BindString(R.string.join_course_web_exception)
     String joinCourseWebException;
-
-    @BindView(R.id.list_of_course_property)
-    ListView coursePropertyListView;
+//
+//    @BindView(R.id.list_of_course_property)
+//    RecyclerView coursePropertyRecyclerView;
 
     @BindDrawable(R.drawable.video_placeholder_color)
     Drawable videoPlaceholder;
@@ -159,20 +158,23 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
     @BindView(R.id.report_problem)
     View reportInternetProblem;
 
+
+    @BindView(R.id.courseIcon)
     ImageView courseIcon;
 
+    @BindView(R.id.player_thumbnail)
     ImageView thumbnail;
 
+    @BindView(R.id.player_layout)
     View player;
 
     private Uri urlInWeb;
     private String titleString;
 
-
-    private List<CourseProperty> coursePropertyList;
+    //    private List<CourseProperty> coursePropertyList;
     private Course course;
-    private List<User> instructorsList;
-    private InstructorAdapter instructorAdapter;
+//    private List<User> instructorsList;
+//    private InstructorAdapter instructorAdapter;
 
     public Action getAction() {
         return Actions.newView(titleString, urlInWeb.toString());
@@ -201,7 +203,7 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         getActivity().overridePendingTransition(R.anim.slide_in_from_end, R.anim.slide_out_to_start);
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        instructorsList = new ArrayList<>();
+//        instructorsList = new ArrayList<>();
         needInstaEnroll = getArguments().getBoolean(instaEnrollKey); //if not exist -> false
     }
 
@@ -215,28 +217,22 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
         //VIEW:
-        coursePropertyList = new ArrayList<>();
-        joinCourseSpinner = new LoadingProgressDialog(getActivity());
-        footer = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_course_detailed_footer, coursePropertyListView, false);
-        coursePropertyListView.addFooterView(footer);
-        instructorsCarousel = ButterKnife.findById(footer, R.id.instructors_carousel);
+        initViewPager();
+//        coursePropertyList = new ArrayList<>();
+        joinCourseSpinner = new LoadingProgressDialog(getContext());
+//        footer = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_course_detailed_footer, coursePropertyRecyclerView, false);
+//        coursePropertyRecyclerView.addFooterView(footer);
+//        instructorsCarousel = ButterKnife.findById(footer, R.id.instructors_carousel);
 
-        header = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_course_detailed_header, coursePropertyListView, false);
-        coursePropertyListView.addHeaderView(header);
+//        header = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_course_detailed_header, coursePropertyRecyclerView, false);
+//        coursePropertyRecyclerView.addHeaderView(header);
 
-        courseIcon = ButterKnife.findById(header, R.id.courseIcon);
-        joinCourseView = ButterKnife.findById(header, R.id.join_course_layout);
-        continueCourseView = ButterKnife.findById(header, R.id.go_to_learn);
-        introView = ButterKnife.findById(header, R.id.intro_video);
-        thumbnail = ButterKnife.findById(header, R.id.player_thumbnail);
-        player = ButterKnife.findById(header, R.id.player_layout);
         courseTargetFigSupported = new GlideDrawableImageViewTarget(courseIcon);
         player.setVisibility(View.GONE);
-        courseNameView = ButterKnife.findById(header, R.id.course_name);
-        coursePropertyListView.setAdapter(new CoursePropertyAdapter(getActivity(), coursePropertyList));
+//        coursePropertyRecyclerView.setAdapter(new CoursePropertyAdapter(getActivity(), coursePropertyList));
         hideSoftKeypad();
-        instructorAdapter = new InstructorAdapter(instructorsList, getActivity());
-        instructorsCarousel.setAdapter(instructorAdapter);
+//        instructorAdapter = new InstructorAdapter(instructorsList, getActivity());
+//        instructorsCarousel.setAdapter(instructorAdapter);
         courseNotFoundView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -252,10 +248,10 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
             }
         });
 
-        RecyclerView.LayoutManager layoutManager =
-                new LinearLayoutManager(getActivity(),
-                        LinearLayoutManager.HORIZONTAL, false);//// TODO: 30.09.15 determine right-to-left-mode
-        instructorsCarousel.setLayoutManager(layoutManager);
+//        RecyclerView.LayoutManager layoutManager =
+//                new LinearLayoutManager(getActivity(),
+//                        LinearLayoutManager.HORIZONTAL, false);//// TODO: 30.09.15 determine right-to-left-mode
+//        instructorsCarousel.setLayoutManager(layoutManager);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         onClickReportListener = new View.OnClickListener() {
@@ -267,8 +263,18 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         };
         reportInternetProblem.setOnClickListener(onClickReportListener);
 
-        header.setVisibility(View.GONE); //hide while we don't have the course
-        footer.setVisibility(View.GONE);
+//        header.setVisibility(View.GONE); //hide while we don't have the course
+//        footer.setVisibility(View.GONE);
+
+        player.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                Timber.d("New %d, %d, %d, %d, OLD: %d, %d, %d, %d", left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom);
+
+            }
+        });
+//        rootView.setOnHierarchyChangeListener();
+
 
         courseFinderPresenter.attachView(this);
         courseJoinerPresenter.attachView(this);
@@ -277,6 +283,38 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         //COURSE RELATED IN ON START
     }
 
+    private void initViewPager() {
+        viewPager.setAdapter(new CourseDetailFragmentAdapter(getChildFragmentManager()));
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private static class CourseDetailFragmentAdapter extends FragmentStatePagerAdapter {
+        private final int count = 2;
+
+        CourseDetailFragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Timber.d("getItem %d", position);
+            return CourseDetailInfoFragment.Companion.newInstance();
+        }
+
+        @Override
+        public int getCount() {
+            return count;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if (position == 0) {
+                return App.getAppContext().getString(R.string.course_detail_info_title);
+            } else {
+                return App.getAppContext().getString(R.string.course_detail_syllabus);
+            }
+        }
+    }
 
     private void tryToShowCourse() {
         reportInternetProblem.setVisibility(View.GONE); // now we try show -> it is not visible
@@ -311,7 +349,7 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         reportInternetProblem.setVisibility(View.GONE);
         courseNotFoundView.setVisibility(View.GONE);
         //
-        header.setVisibility(View.VISIBLE);
+//        header.setVisibility(View.VISIBLE);
 
         if (course != null) {
             courseDetailAnalyticPresenter.onCourseDetailOpened(course);
@@ -324,8 +362,8 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         }
 
 
-        coursePropertyList.clear();
-        coursePropertyList.addAll(coursePropertyResolver.getSortedPropertyList(course));
+//        coursePropertyList.clear();
+//        coursePropertyList.addAll(coursePropertyResolver.getSortedPropertyList(course));
         if (course.getTitle() != null && !course.getTitle().equals("")) {
             courseNameView.setText(course.getTitle());
         } else {
@@ -346,11 +384,11 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
                 .into(courseTargetFigSupported);
 
         resolveJoinView();
-        if (instructorsList.isEmpty()) {
-            fetchInstructors();
-        } else {
-            showCurrentInstructors();
-        }
+//        if (instructorsList.isEmpty()) {
+//            fetchInstructors();
+//        } else {
+//            showCurrentInstructors();
+//        }
         Activity activity = getActivity();
         if (activity != null) {
             activity.invalidateOptionsMenu();
@@ -410,32 +448,32 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         reportIndexToGoogle();
     }
 
-    private void fetchInstructors() {
-        if (course != null && course.getInstructors() != null && course.getInstructors().length != 0) {
-            bus.post(new StartLoadingInstructorsEvent(course));
-            api.getUsers(course.getInstructors()).enqueue(new Callback<UserStepicResponse>() {
-                @Override
-                public void onResponse(Call<UserStepicResponse> call, Response<UserStepicResponse> response) {
-                    if (response.isSuccessful()) {
-                        if (response.body() == null) {
-                            bus.post(new FailureLoadInstructorsEvent(course, null));
-                        } else {
-                            bus.post(new OnResponseLoadingInstructorsEvent(course, response));
-                        }
-                    } else {
-                        bus.post(new FailureLoadInstructorsEvent(course, null));
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<UserStepicResponse> call, Throwable t) {
-                    bus.post(new FailureLoadInstructorsEvent(course, t));
-                }
-            });
-        } else {
-            instructorsCarousel.setVisibility(View.GONE);
-        }
-    }
+//    private void fetchInstructors() {
+//        if (course != null && course.getInstructors() != null && course.getInstructors().length != 0) {
+//            bus.post(new StartLoadingInstructorsEvent(course));
+//            api.getUsers(course.getInstructors()).enqueue(new Callback<UserStepicResponse>() {
+//                @Override
+//                public void onResponse(Call<UserStepicResponse> call, Response<UserStepicResponse> response) {
+//                    if (response.isSuccessful()) {
+//                        if (response.body() == null) {
+//                            bus.post(new FailureLoadInstructorsEvent(course, null));
+//                        } else {
+//                            bus.post(new OnResponseLoadingInstructorsEvent(course, response));
+//                        }
+//                    } else {
+//                        bus.post(new FailureLoadInstructorsEvent(course, null));
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Call<UserStepicResponse> call, Throwable t) {
+//                    bus.post(new FailureLoadInstructorsEvent(course, t));
+//                }
+//            });
+//        } else {
+//            instructorsCarousel.setVisibility(View.GONE);
+//        }
+//    }
 
     private void setUpIntroVideo() {
         String urlToVideo;
@@ -517,61 +555,61 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         }
     }
 
-    @Subscribe
-    public void onResponseLoadingInstructors(OnResponseLoadingInstructorsEvent e) {
-        if (e.getCourse() != null && course != null && e.getCourse().getCourseId() == course.getCourseId()) {
+//    @Subscribe
+//    public void onResponseLoadingInstructors(OnResponseLoadingInstructorsEvent e) {
+//        if (e.getCourse() != null && course != null && e.getCourse().getCourseId() == course.getCourseId()) {
+//
+//            List<User> users = e.getResponse().body().getUsers();
+//            if (users != null && !users.isEmpty()) {
+//                instructorsList.clear();
+//                instructorsList.addAll(users);
+//
+//                showCurrentInstructors();
+//            } else {
+//                footer.setVisibility(View.GONE);
+//            }
+////            ProgressHelper.dismiss(mInstructorsProgressBar);
+//        }
+//    }
 
-            List<User> users = e.getResponse().body().getUsers();
-            if (users != null && !users.isEmpty()) {
-                instructorsList.clear();
-                instructorsList.addAll(users);
+//    private void showCurrentInstructors() {
+//        footer.setVisibility(View.VISIBLE);
+//        instructorAdapter.notifyDataSetChanged();
+//
+//        instructorsCarousel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//            @Override
+//            public boolean onPreDraw() {
+//                centeringRecycler(this);
+//                return true;
+//            }
+//        });
+//    }
 
-                showCurrentInstructors();
-            } else {
-                footer.setVisibility(View.GONE);
-            }
-//            ProgressHelper.dismiss(mInstructorsProgressBar);
-        }
-    }
+//
+//    private void centeringRecycler(ViewTreeObserver.OnPreDrawListener listener) {
+//        Display display = getActivity().getWindowManager().getDefaultDisplay();
+//        Point size = new Point();
+//        display.getSize(size);
+//        int widthOfScreen = size.x;
+//
+//        int widthOfAllItems = instructorsCarousel.getMeasuredWidth();
+//        if (widthOfAllItems != 0) {
+//            instructorsCarousel.getViewTreeObserver().removeOnPreDrawListener(listener);
+//        }
+//        if (widthOfScreen > widthOfAllItems) {
+//            int padding = (int) (widthOfScreen - widthOfAllItems) / 2;
+//            instructorsCarousel.setPadding(padding, 0, padding, 0);
+//        } else {
+//            instructorsCarousel.setPadding(0, 0, 0, 0);
+//        }
+//    }
 
-    private void showCurrentInstructors() {
-        footer.setVisibility(View.VISIBLE);
-        instructorAdapter.notifyDataSetChanged();
-
-        instructorsCarousel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                centeringRecycler(this);
-                return true;
-            }
-        });
-    }
-
-
-    private void centeringRecycler(ViewTreeObserver.OnPreDrawListener listener) {
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int widthOfScreen = size.x;
-
-        int widthOfAllItems = instructorsCarousel.getMeasuredWidth();
-        if (widthOfAllItems != 0) {
-            instructorsCarousel.getViewTreeObserver().removeOnPreDrawListener(listener);
-        }
-        if (widthOfScreen > widthOfAllItems) {
-            int padding = (int) (widthOfScreen - widthOfAllItems) / 2;
-            instructorsCarousel.setPadding(padding, 0, padding, 0);
-        } else {
-            instructorsCarousel.setPadding(0, 0, 0, 0);
-        }
-    }
-
-    @Subscribe
-    public void onFinishLoading(FailureLoadInstructorsEvent e) {
-        if (e.getCourse() != null && course != null && e.getCourse().getCourseId() == course.getCourseId()) {
-            footer.setVisibility(View.GONE);
-        }
-    }
+//    @Subscribe
+//    public void onFinishLoading(FailureLoadInstructorsEvent e) {
+//        if (e.getCourse() != null && course != null && e.getCourse().getCourseId() == course.getCourseId()) {
+//            footer.setVisibility(View.GONE);
+//        }
+//    }
 
     @Override
     public void onPause() {
@@ -600,7 +638,7 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         courseNotFoundView.setOnClickListener(null);
         introView.destroy();
         introView = null;
-        instructorAdapter = null;
+//        instructorAdapter = null;
         joinCourseView.setOnClickListener(null);
         continueCourseView.setOnClickListener(null);
         super.onDestroyView();
@@ -669,7 +707,7 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     private void setThumbnail(String thumbnail) {
         Uri uri = ThumbnailParser.getUriForThumbnail(thumbnail);
-        Glide.with(getActivity())
+        Glide.with(getContext())
                 .load(uri)
                 .placeholder(videoPlaceholder)
                 .error(videoPlaceholder)

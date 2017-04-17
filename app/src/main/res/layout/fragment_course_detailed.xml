@@ -1,43 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.design.widget.CoordinatorLayout
     android:id="@+id/root_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/appBarLayout"
-        layout="@layout/appbar_only_toolbar"/>
-
-    <ListView
-        android:id="@+id/list_of_course_property"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/appBarLayout"
-        android:clipToPadding="false"
-        android:divider="@color/transparent"
-        android:dividerHeight="@null"
-        android:listSelector="@android:color/transparent"
-        android:scrollbarStyle="outsideOverlay"
-        android:scrollbars="none"
-        android:soundEffectsEnabled="true"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <include
-        layout="@layout/internet_fail_clickable"
+        <include
+            layout="@layout/internet_fail_clickable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            tools:visibility="gone"/>
+
+        <include
+            layout="@layout/fail_to_parse_course"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            tools:visibility="gone"/>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/course_detailed_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <WebView
+            android:id="@+id/intro_video"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:visibility="gone"
+            tools:visibility="gone"/>
+    </FrameLayout>
+
+
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        tools:visibility="gone"/>
+        app:layout_behavior="org.stepic.droid.ui.util.FlingBehavior">
 
-    <include
-        layout="@layout/fail_to_parse_course"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        tools:visibility="gone">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_scrollFlags="scroll">
 
-    </include>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/abc_action_bar_default_height_material"
+                android:background="@color/stepic_brand_primary"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
+            <include
+                android:id="@+id/player_layout"
+                layout="@layout/player_placeholder"/>
+        </LinearLayout>
 
-</RelativeLayout>
+        <include
+            layout="@layout/join_course_view"
+            app:layout_scrollFlags="scroll|enterAlways"/>
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/course_detailed_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:clipToPadding="false"
+            app:tabIndicatorColor="@android:color/white"
+            app:tabIndicatorHeight="@dimen/guideline_tab_indicator_height"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/white70percent"
+        />
+
+    </android.support.design.widget.AppBarLayout>
+</android.support.design.widget.CoordinatorLayout>
