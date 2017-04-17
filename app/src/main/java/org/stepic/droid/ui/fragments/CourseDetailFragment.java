@@ -165,11 +165,8 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     View player;
 
-    //App indexing:
-    private Uri urlInApp;
     private Uri urlInWeb;
     private String titleString;
-    private String descriptionString;
 
 
     private List<CourseProperty> coursePropertyList;
@@ -179,17 +176,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     public Action getAction() {
         return Actions.newView(titleString, urlInWeb.toString());
-//        Thing object = new Thing.Builder()
-//                .setId(urlInWeb.toString())
-//                .setName(titleString)
-//                .setDescription(descriptionString)
-//                .setUrl(urlInApp)
-//                .build();
-//
-//        return new Action.Builder(Action.TYPE_VIEW)
-//                .setObject(object)
-//                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-//                .build();
     }
 
     @Inject
@@ -332,10 +318,8 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         }
 
         titleString = course.getTitle();
-        descriptionString = course.getSummary();
         if (course.getSlug() != null && !wasIndexed) {
             urlInWeb = Uri.parse(StringUtil.getUriForCourse(config.getBaseUrl(), course.getSlug()));
-            urlInApp = StringUtil.getAppUriForCourse(config.getBaseUrl(), course.getSlug());
             reportIndexToGoogle();
         }
 
