@@ -55,7 +55,6 @@ import org.stepic.droid.events.courses.CourseCantLoadEvent;
 import org.stepic.droid.events.courses.CourseFoundEvent;
 import org.stepic.droid.events.courses.CourseUnavailableForUserEvent;
 import org.stepic.droid.events.courses.SuccessDropCourseEvent;
-import org.stepic.droid.events.instructors.StartLoadingInstructorsEvent;
 import org.stepic.droid.events.joining_course.FailJoinEvent;
 import org.stepic.droid.events.joining_course.SuccessJoinEvent;
 import org.stepic.droid.model.Course;
@@ -81,8 +80,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     private static String instaEnrollKey = "instaEnrollKey";
     private View.OnClickListener onClickReportListener;
-    //    private View header;
-//    private View footer;
     private DialogFragment unauthorizedDialog;
     private Intent shareIntentWithChooser;
     private GlideDrawableImageViewTarget courseTargetFigSupported;
@@ -105,7 +102,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         fragment.setArguments(args);
         return fragment;
     }
-
 
     @BindView(R.id.root_view)
     CoordinatorLayout rootView;
@@ -131,8 +127,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
     @BindView(R.id.course_name)
     TextView courseNameView;
 
-//    private RecyclerView instructorsCarousel;
-
     @BindView(R.id.join_course_layout)
     View joinCourseView;
     @BindView(R.id.go_to_learn)
@@ -148,9 +142,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     @BindString(R.string.join_course_web_exception)
     String joinCourseWebException;
-//
-//    @BindView(R.id.list_of_course_property)
-//    RecyclerView coursePropertyRecyclerView;
 
     @BindDrawable(R.drawable.video_placeholder_color)
     Drawable videoPlaceholder;
@@ -171,8 +162,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
     private Uri urlInWeb;
     private String titleString;
     private Course course;
-//    private List<User> instructorsList;
-//    private InstructorAdapter instructorAdapter;
 
     public Action getAction() {
         return Actions.newView(titleString, urlInWeb.toString());
@@ -216,19 +205,10 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         setHasOptionsMenu(true);
         //VIEW:
         joinCourseSpinner = new LoadingProgressDialog(getContext());
-//        footer = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_course_detailed_footer, coursePropertyRecyclerView, false);
-//        coursePropertyRecyclerView.addFooterView(footer);
-//        instructorsCarousel = ButterKnife.findById(footer, R.id.instructors_carousel);
-
-//        header = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_course_detailed_header, coursePropertyRecyclerView, false);
-//        coursePropertyRecyclerView.addHeaderView(header);
 
         courseTargetFigSupported = new GlideDrawableImageViewTarget(courseIcon);
         player.setVisibility(View.GONE);
-//        coursePropertyRecyclerView.setAdapter(new CoursePropertyAdapter(getActivity(), coursePropertyList));
         hideSoftKeypad();
-//        instructorAdapter = new InstructorAdapter(instructorsList, getActivity());
-//        instructorsCarousel.setAdapter(instructorAdapter);
         courseNotFoundView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -244,10 +224,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
             }
         });
 
-//        RecyclerView.LayoutManager layoutManager =
-//                new LinearLayoutManager(getActivity(),
-//                        LinearLayoutManager.HORIZONTAL, false);//// TODO: 30.09.15 determine right-to-left-mode
-//        instructorsCarousel.setLayoutManager(layoutManager);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         onClickReportListener = new View.OnClickListener() {
@@ -258,18 +234,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
             }
         };
         reportInternetProblem.setOnClickListener(onClickReportListener);
-
-//        header.setVisibility(View.GONE); //hide while we don't have the course
-//        footer.setVisibility(View.GONE);
-
-        player.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                Timber.d("New %d, %d, %d, %d, OLD: %d, %d, %d, %d", left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom);
-
-            }
-        });
-//        rootView.setOnHierarchyChangeListener();
 
         courseFinderPresenter.attachView(this);
         courseJoinerPresenter.attachView(this);
@@ -347,9 +311,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         //todo HIDE LOADING AND ERRORS
         reportInternetProblem.setVisibility(View.GONE);
         courseNotFoundView.setVisibility(View.GONE);
-        //
-//        header.setVisibility(View.VISIBLE);
-
         if (course != null) {
             courseDetailAnalyticPresenter.onCourseDetailOpened(course);
         }
@@ -382,11 +343,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
                 .into(courseTargetFigSupported);
 
         resolveJoinView();
-//        if (instructorsList.isEmpty()) {
-//            fetchInstructors();
-//        } else {
-//            showCurrentInstructors();
-//        }
         Activity activity = getActivity();
         if (activity != null) {
             activity.invalidateOptionsMenu();
@@ -446,36 +402,8 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         reportIndexToGoogle();
     }
 
-//    private void fetchInstructors() {
-//        if (course != null && course.getInstructors() != null && course.getInstructors().length != 0) {
-//            bus.post(new StartLoadingInstructorsEvent(course));
-//            api.getUsers(course.getInstructors()).enqueue(new Callback<UserStepicResponse>() {
-//                @Override
-//                public void onResponse(Call<UserStepicResponse> call, Response<UserStepicResponse> response) {
-//                    if (response.isSuccessful()) {
-//                        if (response.body() == null) {
-//                            bus.post(new FailureLoadInstructorsEvent(course, null));
-//                        } else {
-//                            bus.post(new OnResponseLoadingInstructorsEvent(course, response));
-//                        }
-//                    } else {
-//                        bus.post(new FailureLoadInstructorsEvent(course, null));
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Call<UserStepicResponse> call, Throwable t) {
-//                    bus.post(new FailureLoadInstructorsEvent(course, t));
-//                }
-//            });
-//        } else {
-//            instructorsCarousel.setVisibility(View.GONE);
-//        }
-//    }
-
     private void setUpIntroVideo() {
         String urlToVideo;
-
         Video newTypeVideo = course.getIntro_video();
         if (newTypeVideo != null && newTypeVideo.getUrls() != null && !newTypeVideo.getUrls().isEmpty()) {
             urlToVideo = newTypeVideo.getUrls().get(0).getUrl();
@@ -545,70 +473,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         }
     }
 
-    @Subscribe
-    public void onStartLoadingInstructors(StartLoadingInstructorsEvent e) {
-        if (e.getCourse() != null && course != null && e.getCourse().getCourseId() == course.getCourseId()) {
-//            ProgressHelper.activate(mInstructorsProgressBar);
-            //not react
-        }
-    }
-
-//    @Subscribe
-//    public void onResponseLoadingInstructors(OnResponseLoadingInstructorsEvent e) {
-//        if (e.getCourse() != null && course != null && e.getCourse().getCourseId() == course.getCourseId()) {
-//
-//            List<User> users = e.getResponse().body().getUsers();
-//            if (users != null && !users.isEmpty()) {
-//                instructorsList.clear();
-//                instructorsList.addAll(users);
-//
-//                showCurrentInstructors();
-//            } else {
-//                footer.setVisibility(View.GONE);
-//            }
-////            ProgressHelper.dismiss(mInstructorsProgressBar);
-//        }
-//    }
-
-//    private void showCurrentInstructors() {
-//        footer.setVisibility(View.VISIBLE);
-//        instructorAdapter.notifyDataSetChanged();
-//
-//        instructorsCarousel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-//            @Override
-//            public boolean onPreDraw() {
-//                centeringRecycler(this);
-//                return true;
-//            }
-//        });
-//    }
-
-//
-//    private void centeringRecycler(ViewTreeObserver.OnPreDrawListener listener) {
-//        Display display = getActivity().getWindowManager().getDefaultDisplay();
-//        Point size = new Point();
-//        display.getSize(size);
-//        int widthOfScreen = size.x;
-//
-//        int widthOfAllItems = instructorsCarousel.getMeasuredWidth();
-//        if (widthOfAllItems != 0) {
-//            instructorsCarousel.getViewTreeObserver().removeOnPreDrawListener(listener);
-//        }
-//        if (widthOfScreen > widthOfAllItems) {
-//            int padding = (int) (widthOfScreen - widthOfAllItems) / 2;
-//            instructorsCarousel.setPadding(padding, 0, padding, 0);
-//        } else {
-//            instructorsCarousel.setPadding(0, 0, 0, 0);
-//        }
-//    }
-
-//    @Subscribe
-//    public void onFinishLoading(FailureLoadInstructorsEvent e) {
-//        if (e.getCourse() != null && course != null && e.getCourse().getCourseId() == course.getCourseId()) {
-//            footer.setVisibility(View.GONE);
-//        }
-//    }
-
     @Override
     public void onPause() {
         super.onPause();
@@ -617,7 +481,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     @Override
     public void onStop() {
-
         if (wasIndexed) {
             FirebaseUserActions.getInstance().end(getAction());
         }
@@ -636,7 +499,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         courseNotFoundView.setOnClickListener(null);
         introView.destroy();
         introView = null;
-//        instructorAdapter = null;
         joinCourseView.setOnClickListener(null);
         continueCourseView.setOnClickListener(null);
         super.onDestroyView();

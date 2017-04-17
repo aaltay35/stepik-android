@@ -1,15 +1,21 @@
 package org.stepic.droid.ui.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Point;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.LinkMovementMethod;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import org.stepic.droid.R;
 import org.stepic.droid.model.CourseProperty;
+import org.stepic.droid.model.User;
 import org.stepic.droid.ui.custom.LatexSupportableWebView;
 import org.stepic.droid.util.resolvers.text.TextResolver;
 import org.stepic.droid.util.resolvers.text.TextResult;
@@ -21,29 +27,57 @@ import butterknife.ButterKnife;
 
 public class CourseDetailAdapter extends RecyclerView.Adapter<CourseDetailAdapter.GenericViewHolder> {
 
-    public static final int TYPE_COURSE_PROPERTY = 2;
-    public static final int TYPE_INSTRUCTORS = 3;
+    private static final int TYPE_COURSE_PROPERTY = 2;
+    private static final int TYPE_INSTRUCTORS = 3;
+
+    private int POST_PROPERTIES_ITEMS_COUNT;
 
 
     private final Context context;
     private final TextResolver textResolver;
     private final List<CourseProperty> coursePropertyList;
+    private List<User> instructors;
+    private Activity activity;
 
     public CourseDetailAdapter(Context context, TextResolver textResolver, List<CourseProperty> coursePropertyList) {
         this.context = context;
         this.textResolver = textResolver;
         this.coursePropertyList = coursePropertyList;
+
+        POST_PROPERTIES_ITEMS_COUNT = 0;
+    }
+
+    public void setInstructors(List<User> instructors, Activity activity) {
+        this.instructors = instructors;
+        this.activity = activity;
+        POST_PROPERTIES_ITEMS_COUNT = 1;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_INSTRUCTORS, 1);
     }
 
     @Override
     public int getItemViewType(int position) {
-        return TYPE_COURSE_PROPERTY;
+        if (position < coursePropertyList.size()) {
+            return TYPE_COURSE_PROPERTY;
+        } else {
+            return TYPE_INSTRUCTORS;
+        }
     }
 
     @Override
     public GenericViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.course_property_item, parent, false);
-        return new CoursePropertyViewHolder(v, textResolver, coursePropertyList);
+        if (viewType == TYPE_COURSE_PROPERTY) {
+            View v = LayoutInflater.from(context).inflate(R.layout.course_property_item, parent, false);
+            return new CoursePropertyViewHolder(v, textResolver, coursePropertyList);
+        } else {
+            View v = LayoutInflater.from(context).inflate(R.layout.fragment_course_detailed_footer, parent, false);
+            return new InstructorViewHolder(v, instructors, activity);
+        }
     }
 
     @Override
@@ -53,7 +87,7 @@ public class CourseDetailAdapter extends RecyclerView.Adapter<CourseDetailAdapte
 
     @Override
     public int getItemCount() {
-        return coursePropertyList.size();
+        return coursePropertyList.size() + POST_PROPERTIES_ITEMS_COUNT;
     }
 
     abstract static class GenericViewHolder extends RecyclerView.ViewHolder {
@@ -110,6 +144,51 @@ public class CourseDetailAdapter extends RecyclerView.Adapter<CourseDetailAdapte
                 latexSupportableWebView.setText(textResult.getText());
             }
 
+        }
+    }
+
+    static class InstructorViewHolder extends GenericViewHolder {
+
+        private final Activity activity;
+        @BindView(R.id.instructors_carousel)
+        RecyclerView instructorsCarousel;
+
+        InstructorViewHolder(View itemView, List<User> instructors, Activity activity) {
+            super(itemView);
+            this.activity = activity;
+            instructorsCarousel.setAdapter(new InstructorAdapter(instructors, activity));
+            instructorsCarousel.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
+
+            instructorsCarousel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    centeringRecycler(this);
+                    return true;
+                }
+            });
+        }
+
+        @Override
+        public void bindData(int position) {
+            //do nothing, it is already set
+        }
+
+        private void centeringRecycler(ViewTreeObserver.OnPreDrawListener listener) {
+            Display display = activity.getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            int widthOfScreen = size.x;
+
+            int widthOfAllItems = instructorsCarousel.getMeasuredWidth();
+            if (widthOfAllItems != 0) {
+                instructorsCarousel.getViewTreeObserver().removeOnPreDrawListener(listener);
+            }
+            if (widthOfScreen > widthOfAllItems) {
+                int padding = (int) (widthOfScreen - widthOfAllItems) / 2;
+                instructorsCarousel.setPadding(padding, 0, padding, 0);
+            } else {
+                instructorsCarousel.setPadding(0, 0, 0, 0);
+            }
         }
     }
 }
