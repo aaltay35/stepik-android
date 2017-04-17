@@ -65,12 +65,9 @@
                 android:focusableInTouchMode="false"
                 android:visibility="gone"
                 tools:visibility="gone"/>
-
+            <include
+                layout="@layout/join_course_view"/>
         </LinearLayout>
-
-        <include
-            layout="@layout/join_course_view"
-            app:layout_scrollFlags="scroll|enterAlways"/>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/course_detailed_tabs"
