@@ -30,28 +30,20 @@
             android:id="@+id/course_detailed_viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-
-        <WebView
-            android:id="@+id/intro_video"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:visibility="gone"
-            tools:visibility="gone"/>
     </FrameLayout>
-
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/transparent"
         app:layout_behavior="org.stepic.droid.ui.util.FlingBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_scrollFlags="scroll">
+            app:layout_scrollFlags="scroll"
+            tools:ignore="WebViewLayout">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -64,6 +56,16 @@
             <include
                 android:id="@+id/player_layout"
                 layout="@layout/player_placeholder"/>
+
+            <WebView
+                android:id="@+id/intro_video"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:visibility="gone"
+                tools:visibility="gone"/>
+
         </LinearLayout>
 
         <include
@@ -75,12 +77,16 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:clipToPadding="false"
-            app:tabIndicatorColor="@android:color/white"
+            app:tabBackground="@color/white"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="@color/drawer_text_color_checked"
             app:tabIndicatorHeight="@dimen/guideline_tab_indicator_height"
+            app:tabMaxWidth="0dp"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/white"
-            app:tabTextColor="@color/white70percent"
-        />
+            app:tabPaddingEnd="0dp"
+            app:tabPaddingStart="0dp"
+            app:tabSelectedTextColor="@color/drawer_text_color_checked"
+            app:tabTextColor="@color/stepic_weak_text"/>
 
     </android.support.design.widget.AppBarLayout>
 </android.support.design.widget.CoordinatorLayout>
