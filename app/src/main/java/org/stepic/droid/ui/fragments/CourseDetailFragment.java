@@ -170,8 +170,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
 
     private Uri urlInWeb;
     private String titleString;
-
-    //    private List<CourseProperty> coursePropertyList;
     private Course course;
 //    private List<User> instructorsList;
 //    private InstructorAdapter instructorAdapter;
@@ -217,8 +215,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
         //VIEW:
-        initViewPager();
-//        coursePropertyList = new ArrayList<>();
         joinCourseSpinner = new LoadingProgressDialog(getContext());
 //        footer = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_course_detailed_footer, coursePropertyRecyclerView, false);
 //        coursePropertyRecyclerView.addFooterView(footer);
@@ -275,7 +271,6 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         });
 //        rootView.setOnHierarchyChangeListener();
 
-
         courseFinderPresenter.attachView(this);
         courseJoinerPresenter.attachView(this);
         courseDetailAnalyticPresenter.attachView(this);
@@ -283,22 +278,26 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         //COURSE RELATED IN ON START
     }
 
-    private void initViewPager() {
-        viewPager.setAdapter(new CourseDetailFragmentAdapter(getChildFragmentManager()));
+    private void initViewPager(Course course) {
+        viewPager.setAdapter(new CourseDetailFragmentAdapter(getChildFragmentManager(), course));
         tabLayout.setupWithViewPager(viewPager);
     }
 
     private static class CourseDetailFragmentAdapter extends FragmentStatePagerAdapter {
         private final int count = 2;
+        private final FragmentManager fm;
+        private final Course course;
 
-        CourseDetailFragmentAdapter(FragmentManager fm) {
+        CourseDetailFragmentAdapter(FragmentManager fm, Course course) {
             super(fm);
+            this.fm = fm;
+            this.course = course;
         }
 
         @Override
         public Fragment getItem(int position) {
             Timber.d("getItem %d", position);
-            return CourseDetailInfoFragment.Companion.newInstance();
+            return CourseDetailInfoFragment.Companion.newInstance(course);
         }
 
         @Override
@@ -362,8 +361,7 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         }
 
 
-//        coursePropertyList.clear();
-//        coursePropertyList.addAll(coursePropertyResolver.getSortedPropertyList(course));
+        initViewPager(course);
         if (course.getTitle() != null && !course.getTitle().equals("")) {
             courseNameView.setText(course.getTitle());
         } else {
