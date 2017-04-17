@@ -261,7 +261,11 @@ public class CourseDetailFragment extends FragmentBase implements LoadCourseView
         @Override
         public Fragment getItem(int position) {
             Timber.d("getItem %d", position);
-            return CourseDetailInfoFragment.Companion.newInstance(course);
+            if (position == 0) {
+                return CourseDetailInfoFragment.Companion.newInstance(course);
+            } else {
+                return CourseShortSyllabus.Companion.newInstance(course);
+            }
         }
 
         @Override

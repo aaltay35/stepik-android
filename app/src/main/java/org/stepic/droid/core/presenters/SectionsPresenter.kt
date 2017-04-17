@@ -26,8 +26,8 @@ class SectionsPresenter
         private val api: Api,
         private val databaseFacade: DatabaseFacade) : PresenterBase<SectionsView>() {
 
-    val sectionList: MutableList<Section> = ArrayList()
-    val isLoading: AtomicBoolean = AtomicBoolean(false)
+    private val sectionList: MutableList<Section> = ArrayList()
+    private val isLoading: AtomicBoolean = AtomicBoolean(false)
     val progressMap: HashMap<String, ProgressViewModel> = HashMap()
 
     fun showSections(course: Course?, isRefreshing: Boolean) {
