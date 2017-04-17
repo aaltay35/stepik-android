@@ -26,6 +26,10 @@ public class SmallSectionAdapter extends RecyclerView.Adapter<SmallSectionAdapte
         this.sections = sections;
     }
 
+    public boolean isEmpty() {
+        return sections == null || sections.isEmpty();
+    }
+
     @Override
     public SectionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.small_section_item, parent, false);

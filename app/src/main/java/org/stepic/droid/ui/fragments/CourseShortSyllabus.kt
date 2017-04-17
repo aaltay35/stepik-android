@@ -32,6 +32,8 @@ class CourseShortSyllabus : FragmentBase(), SectionsView {
     @Inject
     lateinit var sectionPresenter: SectionsPresenter
 
+    private var smallSectionAdapter: SmallSectionAdapter? = null
+
     override fun injectComponent() {
         App
                 .component()
@@ -60,10 +62,12 @@ class CourseShortSyllabus : FragmentBase(), SectionsView {
 
 
     override fun onConnectionProblem() {
-        reportConnectionProblemSections.visibility = View.VISIBLE
-        progressBarSections.visibility = View.GONE
-        reportEmptySections.visibility = View.GONE
-        courseSyllabusRecyclerView.visibility = View.GONE
+        if (smallSectionAdapter?.isEmpty() ?: true) {
+            reportConnectionProblemSections.visibility = View.VISIBLE
+            progressBarSections.visibility = View.GONE
+            reportEmptySections.visibility = View.GONE
+            courseSyllabusRecyclerView.visibility = View.GONE
+        }
     }
 
     override fun onNeedShowSections(sectionList: List<Section>) {
@@ -71,7 +75,8 @@ class CourseShortSyllabus : FragmentBase(), SectionsView {
         progressBarSections.visibility = View.GONE
         reportEmptySections.visibility = View.GONE
         courseSyllabusRecyclerView.visibility = View.VISIBLE
-        courseSyllabusRecyclerView.adapter = SmallSectionAdapter(context, sectionList)
+        smallSectionAdapter = SmallSectionAdapter(context, sectionList)
+        courseSyllabusRecyclerView.adapter = smallSectionAdapter
     }
 
     override fun onLoading() {
